@@ -4,10 +4,10 @@
     align-items: center;
     padding: 8px 12px;
     border-radius: 16px;
-    background-color: #f0f0f0;
+    background-color: var(--background);
+    border: 1px solid var(--foreground);
     margin-bottom: 8px;
     width: 400px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .button {
@@ -15,8 +15,8 @@
     padding: 5px 10px;
     border-radius: 10px;
     border: none;
-    background-color: #007bff;
-    color: white;
+    background-color: var(--foreground);
+    color: var(--background);
     cursor: pointer;
 }
 
@@ -24,8 +24,8 @@
     padding: 5px 10px;
     border-radius: 10px;
     border: none;
-    background-color: #007bff;
-    color: white;
+    background-color: var(--foreground);
+    color: var(--background);
     cursor: pointer;
     justify-self: center;
 }
@@ -36,8 +36,9 @@
 }
 
 .input {
-    background-color: white;
-    border: 1px solid #ccc;
+    background-color: var(--background);
+    color: var(--foreground);
+    border: 1px solid var(--foreground);
     border-radius: 4px;
     padding: 4px 8px;
     width: 125px;
