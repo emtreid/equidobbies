@@ -32,13 +32,13 @@ function MyComponent() {
 
   const [markers, setMarkers] = useState<MapTack[]>([]);
 
-  const [showUnsavedMarker, setShowUnsavedMarker] = useState<boolean>(false);
+  const [markerIsDirty, setMarkerIsDirty] = useState<boolean>(false);
 
-  const allMarkers = showUnsavedMarker ? [...markers, newMarker] : markers;
+  const allMarkers = markerIsDirty ? [...markers, newMarker] : markers;
 
 
   const onMapClick = useCallback((event: google.maps.MapMouseEvent) => {
-    setShowUnsavedMarker(true);
+    setMarkerIsDirty(true);
     if (event.latLng) {
       const updatedMarker = {
         ...newMarker,
@@ -50,7 +50,7 @@ function MyComponent() {
   }, []);
 
   const resetUnsavedMarker = useCallback(() => {
-    setShowUnsavedMarker(false);
+    setMarkerIsDirty(false);
     setNewMarker({
       name: "New Location",
       lat: center.lat,
@@ -59,7 +59,7 @@ function MyComponent() {
   }, []);
 
   const onSaveMarker = useCallback(() => {
-    if (showUnsavedMarker) {
+    if (markerIsDirty) {
       setMarkers((current) => [...current, newMarker]);
       resetUnsavedMarker();
     }
@@ -88,11 +88,14 @@ function MyComponent() {
         <h2>Selected Locations</h2>
         <ul>
           <li key="unsaved">
-            {newMarker.name} Lat: ${newMarker.lat.toFixed(3)}, Lng: ${newMarker.lng.toFixed(3)}`
+            {newMarker.name} Lat: {newMarker.lat.toFixed(3)}, Lng:{" "}
+            {newMarker.lng.toFixed(3)}
+            <button onClick={onSaveMarker}>Save</button>
           </li>
           {markers.map((marker, index) => (
             <li key={index}>
-              {marker.name} Lat: {marker.lat.toFixed(3)}, Lng: {marker.lng.toFixed(3)}
+              {marker.name} Lat: {marker.lat.toFixed(3)}, Lng:{" "}
+              {marker.lng.toFixed(3)}
             </li>
           ))}
         </ul>
