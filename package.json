@@ -2,11 +2,13 @@
   "name": "equidobbies",
   "version": "0.1.0",
   "private": true,
+  "homepage": "http://emtreid.github.io/equidobbies",
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build --turbopack",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "deploy": "gh-pages -d build"
   },
   "dependencies": {
     "@react-google-maps/api": "^2.19.3",
@@ -22,6 +24,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "15.5.2",
+    "gh-pages": "^6.3.0",
     "prettier": "3.6.2",
     "tailwindcss": "^4",
     "typescript": "^5"
