@@ -9,14 +9,11 @@ import {
 import { MapTack } from "../types/MapTack";
 import styles from "./Map.module.css";
 
+import { dobbies } from "../data/dobbies";
+
 const containerStyle = {
   width: "400px",
   height: "400px",
-};
-
-const center = {
-  lat: 53.797,
-  lng: -1.547,
 };
 
 function MyComponent() {
@@ -36,6 +33,35 @@ function MyComponent() {
   const [markerIsDirty, setMarkerIsDirty] = useState<boolean>(false);
 
   const allMarkers = markerIsDirty ? [...markers, newMarker] : markers;
+
+  const [equiDobbies, setEquiDobbies] = useState<{ mapTack: MapTack, distance: number } | null>(null);
+
+  const allMarkersForMap = equiDobbies ? [...allMarkers.map((marker, index) => (
+    <Marker key={index} position={marker} />
+  )), <Marker key="equidobbies" position={equiDobbies.mapTack} label={"Dobbies " + equiDobbies.mapTack.name} />]
+    : allMarkers.map((marker, index) => (
+      <Marker key={index} position={marker} />
+    ));
+
+  const findEquidobbies = useCallback(() => {
+    const markerCentreLat = allMarkers.reduce((sum, marker) => sum + marker.lat, 0) / allMarkers.length;
+    const markerCentreLng = allMarkers.reduce((sum, marker) => sum + marker.lng, 0) / allMarkers.length;
+    const closestEquiDobbies = dobbies.map((dobby) => {
+      const distanceSq =
+        Math.pow(dobby.lat - markerCentreLat, 2) +
+        Math.pow(dobby.lng - markerCentreLng, 2);
+      return { ...dobby, distance: distanceSq };
+    }
+    ).sort((a, b) => a.distance - b.distance)[0];
+
+    return { mapTack: { name: closestEquiDobbies.name, lat: closestEquiDobbies.lat, lng: closestEquiDobbies.lng }, distance: Math.sqrt(closestEquiDobbies.distance) };
+  }, [allMarkers]);
+
+
+  const center = equiDobbies ? { lat: equiDobbies.mapTack.lat, lng: equiDobbies.mapTack.lng } : {
+    lat: 53.797,
+    lng: -1.547,
+  };
 
   const onMapClick = useCallback(
     (event: google.maps.MapMouseEvent) => {
@@ -80,6 +106,15 @@ function MyComponent() {
 
   return isLoaded ? (
     <div>
+      {equiDobbies &&
+        <div>
+          < h3 > EquiDobby: {equiDobbies.mapTack.name}</h3>
+          <h3>Average distance: {equiDobbies.distance.toFixed(3)}</h3>
+        </div >}
+      {!equiDobbies &&
+        <button onClick={() => setEquiDobbies(findEquidobbies())} className={styles.dobbiesButton}>
+          Find my EquiDobbies
+        </button>}
       <GoogleMap
         mapContainerStyle={containerStyle}
         center={center}
@@ -87,9 +122,7 @@ function MyComponent() {
         onClick={onMapClick}
         onUnmount={onUnmount}
       >
-        {allMarkers.map((marker, index) => (
-          <Marker key={index} position={marker} />
-        ))}
+        {allMarkersForMap}
       </GoogleMap>
       <div>
         <h2>Selected Locations</h2>
