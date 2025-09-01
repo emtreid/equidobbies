@@ -6,6 +6,7 @@ import {
   useJsApiLoader,
   Marker,
 } from "@react-google-maps/api";
+import { MapTack } from "../types/MapTack";
 
 const containerStyle = {
   width: "100%",
@@ -13,8 +14,8 @@ const containerStyle = {
 };
 
 const center = {
-  lat: 53.8008,
-  lng: 1.5491,
+  lat: 53.797,
+  lng: -1.547,
 };
 
 function MyComponent() {
@@ -23,19 +24,46 @@ function MyComponent() {
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY!,
   });
 
-  const [markers, setMarkers] = useState<google.maps.LatLngLiteral[]>([]);
+  const [newMarker, setNewMarker] = useState<MapTack>({
+    name: "New Location",
+    lat: center.lat,
+    lng: center.lng,
+  });
+
+  const [markers, setMarkers] = useState<MapTack[]>([]);
+
+  const [showUnsavedMarker, setShowUnsavedMarker] = useState<boolean>(false);
+
+  const allMarkers = showUnsavedMarker ? [...markers, newMarker] : markers;
+
 
   const onMapClick = useCallback((event: google.maps.MapMouseEvent) => {
+    setShowUnsavedMarker(true);
     if (event.latLng) {
-      setMarkers((current) => [
-        ...current,
-        {
-          lat: event.latLng!.lat(),
-          lng: event.latLng!.lng(),
-        },
-      ]);
+      const updatedMarker = {
+        ...newMarker,
+        lat: event.latLng.lat(),
+        lng: event.latLng.lng(),
+      }
+      setNewMarker(updatedMarker);
     }
   }, []);
+
+  const resetUnsavedMarker = useCallback(() => {
+    setShowUnsavedMarker(false);
+    setNewMarker({
+      name: "New Location",
+      lat: center.lat,
+      lng: center.lng,
+    });
+  }, []);
+
+  const onSaveMarker = useCallback(() => {
+    if (showUnsavedMarker) {
+      setMarkers((current) => [...current, newMarker]);
+      resetUnsavedMarker();
+    }
+  }, [markers, newMarker]);
 
   const mapRef = React.useRef<google.maps.Map | null>(null);
 
@@ -52,16 +80,19 @@ function MyComponent() {
         onClick={onMapClick}
         onUnmount={onUnmount}
       >
-        {markers.map((marker, index) => (
+        {allMarkers.map((marker, index) => (
           <Marker key={index} position={marker} />
         ))}
       </GoogleMap>
       <div>
         <h2>Selected Locations</h2>
         <ul>
+          <li key="unsaved">
+            {newMarker.name} Lat: ${newMarker.lat.toFixed(3)}, Lng: ${newMarker.lng.toFixed(3)}`
+          </li>
           {markers.map((marker, index) => (
             <li key={index}>
-              Marker {index + 1}: Lat: {marker.lat}, Lng: {marker.lng}
+              {marker.name} Lat: {marker.lat.toFixed(3)}, Lng: {marker.lng.toFixed(3)}
             </li>
           ))}
         </ul>
