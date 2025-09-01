@@ -7,9 +7,10 @@ import {
   Marker,
 } from "@react-google-maps/api";
 import { MapTack } from "../types/MapTack";
+import styles from "./Map.module.css";
 
 const containerStyle = {
-  width: "100%",
+  width: "400px",
   height: "400px",
 };
 
@@ -26,8 +27,8 @@ function MyComponent() {
 
   const [newMarker, setNewMarker] = useState<MapTack>({
     name: "New Location",
-    lat: center.lat,
-    lng: center.lng,
+    lat: 0,
+    lng: 0,
   });
 
   const [markers, setMarkers] = useState<MapTack[]>([]);
@@ -36,25 +37,27 @@ function MyComponent() {
 
   const allMarkers = markerIsDirty ? [...markers, newMarker] : markers;
 
-
-  const onMapClick = useCallback((event: google.maps.MapMouseEvent) => {
-    setMarkerIsDirty(true);
-    if (event.latLng) {
-      const updatedMarker = {
-        ...newMarker,
-        lat: event.latLng.lat(),
-        lng: event.latLng.lng(),
+  const onMapClick = useCallback(
+    (event: google.maps.MapMouseEvent) => {
+      setMarkerIsDirty(true);
+      if (event.latLng) {
+        const updatedMarker = {
+          ...newMarker,
+          lat: event.latLng.lat(),
+          lng: event.latLng.lng(),
+        };
+        setNewMarker(updatedMarker);
       }
-      setNewMarker(updatedMarker);
-    }
-  }, []);
+    },
+    [newMarker]
+  );
 
   const resetUnsavedMarker = useCallback(() => {
     setMarkerIsDirty(false);
     setNewMarker({
       name: "New Location",
-      lat: center.lat,
-      lng: center.lng,
+      lat: 0,
+      lng: 0,
     });
   }, []);
 
@@ -63,7 +66,11 @@ function MyComponent() {
       setMarkers((current) => [...current, newMarker]);
       resetUnsavedMarker();
     }
-  }, [markers, newMarker]);
+  }, [markerIsDirty, newMarker, resetUnsavedMarker]);
+
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setNewMarker({ ...newMarker, name: e.target.value });
+  };
 
   const mapRef = React.useRef<google.maps.Map | null>(null);
 
@@ -86,16 +93,34 @@ function MyComponent() {
       </GoogleMap>
       <div>
         <h2>Selected Locations</h2>
-        <ul>
-          <li key="unsaved">
-            {newMarker.name} Lat: {newMarker.lat.toFixed(3)}, Lng:{" "}
-            {newMarker.lng.toFixed(3)}
-            <button onClick={onSaveMarker}>Save</button>
+        <ul style={{ listStyleType: "none", padding: 0 }}>
+          <li key="unsaved" className={styles.pill}>
+            <input
+              type="text"
+              value={newMarker.name}
+              onChange={handleNameChange}
+              className={styles.input}
+            />
+            <span className={styles.coords}>
+              Lat: {newMarker.lat.toFixed(3)}
+            </span>
+            <span className={styles.coords}>
+              Lng: {newMarker.lng.toFixed(3)}
+            </span>
+            <button onClick={onSaveMarker} className={styles.button}>
+              Save
+            </button>
           </li>
+
           {markers.map((marker, index) => (
-            <li key={index}>
-              {marker.name} Lat: {marker.lat.toFixed(3)}, Lng:{" "}
-              {marker.lng.toFixed(3)}
+            <li key={index} className={styles.pill}>
+              <span>{marker.name}</span>
+              <span className={styles.coords}>
+                Lat: {marker.lat.toFixed(3)}
+              </span>
+              <span className={styles.coords}>
+                Lng: {marker.lng.toFixed(3)}
+              </span>
             </li>
           ))}
         </ul>
