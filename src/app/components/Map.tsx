@@ -110,8 +110,7 @@ function MyComponent() {
     <div>
       {equiDobbies &&
         <div>
-          < h3 > EquiDobby: {equiDobbies.mapTack.name}</h3>
-          <h3>Average distance: {equiDobbies.distance.toFixed(3)}</h3>
+          < h3 > Your most equidistant dobbies is: {equiDobbies.mapTack.name}!</h3>
         </div >}
       {!equiDobbies &&
         <button onClick={findEquidobbies} className={styles.dobbiesButton}>
